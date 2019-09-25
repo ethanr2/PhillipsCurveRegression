@@ -121,7 +121,6 @@ def chart_gap_ser(df):
     p.line(xrng,[0,0], color = 'black')
     
     p.line(xdata,ydata, color = 'blue', legend = 'Sticky-forecast of NGDP')
-    p.line(xdata,df['UNRATE'], color = 'red', legend = 'Unemployment Rate')
     
     p.xaxis[0].ticker.desired_num_ticks = 10
     p.legend.location = 'bottom_right'
@@ -131,26 +130,7 @@ def chart_gap_ser(df):
     export_png(p,'images/NGDP_gap.png')
 
     return p
-def chart_serial_corr(df):
-    xdata, ydata, xrng, yrng = set_up(df.index, df['error'], truncated = False)
-    
-    p = figure(width = 1000, height = 700,
-               title="Sticky Forecast of NGDP" , 
-               x_axis_label = 'Date', x_axis_type = 'datetime',
-               y_axis_label = 'Error', 
-               y_range = yrng, x_range = xrng)
-    p.line(xrng,[0,0], color = 'black')
-    
-    p.line(xdata,ydata, color = 'blue', legend = 'Residual')
-    
-    p.xaxis[0].ticker.desired_num_ticks = 10
-    p.legend.location = 'bottom_right'
-    p.ygrid.grid_line_color = None
-    p.yaxis.formatter=NumeralTickFormatter(format="0.0%")
 
-    export_png(p,'images/error_ser.png')
-
-    return p
 def chart_philips_curve(df):
     xdata, ydata, xrng, yrng = set_up(df['UNRATE'], df['GAP'], 
                                       truncated = False, margins = .005)
@@ -192,10 +172,8 @@ rgdp = rgdp.set_index(ind)
 
 df['RGDP'] = rgdp['RGDP'].astype(float)/100
 df = df.dropna()
-slope, intercept, r_value, p_value, std_err = stats.linregress(df['UNRATE'], df['GAP'])
-df['error'] = df['GAP'] = (slope*df['UNRATE'] + intercept)
 
-ps = [chart_NGDP_ser(df), chart_serial_corr(df), chart_philips_curve(df)]
+ps = [chart_NGDP_ser(df), chart_gap_ser(df), chart_philips_curve(df)]
 
 output_file("images/stickyPCurve.html")
 show(column(row(ps[0],ps[1]),ps[2]))
